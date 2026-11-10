@@ -1,13 +1,15 @@
 <?php 
 
-$host = "Redes_12";
+$host = "localhost";
 $user = "root";
-$pass = "";
+$pass = "root";
 $db = "";
-$porta = "3306";
+$porta = "8889";
 
 $conn = mysqli_connect($host, $user, $pass, $db, $porta);
 if (!$conn) {
     die("Falha na conexão: " . mysqli_connect_error());
 }
+echo "Conexão bem-sucedida!";
+
 ?>
