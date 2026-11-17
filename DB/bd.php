@@ -63,9 +63,15 @@ $criarCartao = mysqli_query($conn, $query);
 if (!$criarCartao)
     die  ("Erro ao criar tabela Cartao");
 
+$query = "ALTER TABLE Livro ADD genero VARCHAR(100);";
+$alterLivro = mysqli_query($conn, $query);
+if (!$alterLivro)
+    die  ("Erro ao alterar tabela Livro");
+
 $query = "CREATE TABLE IF NOT EXISTS Livro (
     cod_livro INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(200),
+    genero VARCHAR(100),
     autor VARCHAR(200),
     editora VARCHAR(150),
     n_leitor INT,
@@ -120,19 +126,19 @@ $inserirCartao = mysqli_query($conn, $query);
 if (!$inserirCartao)
     die  ("Erro ao inserir dados na tabela Cartao");
 
-$query = "INSERT INTO Livro (cod_livro, nome, autor, editora, n_leitor) VALUES 
-    (1,'O Senhor dos Anéis','Goblin','editora 1',1),
-    (2,'Senhora linda','George macedo','editora 2',2),
-    (3,'O Pequeno Príncipe','Alice boavista','Editora 1',3),
-    (4,'A Menina que Roubava Livros','Markus Zusak','Editora 2',4),
-    (5,'O Código Da Vinci','James Brown','Editora 2',5),
-    (6,'Harry Potter e a Pedra Filosofal','J.K. Rowling','Editora 3',6),
-    (7,'O Hobbit','Tolkien','Editora 3',7),
-    (8,'Declinio de um Homem','Osamu Dazai','Editora 3',6),
-    (9,'Noites Brancas','Fyodor Dostoevsky','Editora 2',5),
-    (10,'A metamorfose','Franz Kafka','Editora 1',4),
-    (11,'De bom a excelente','Jim Collins','Editora 2',3),
-    (12,'Dom Casmurro','Machado de Assis','Editora 3',2);";    
+$query = "INSERT INTO Livro (cod_livro, nome, genero, autor, editora, n_leitor) VALUES 
+    (1,'O Senhor dos Anéis','Fantasia','Goblin','editora 1',1),
+    (2,'Senhora linda','Romance','George macedo','editora 2',2),
+    (3,'O Pequeno Príncipe','Infantil','Alice boavista','Editora 1',3),
+    (4,'A Menina que Roubava Livros','Ficção','Markus Zusak','Editora 2',4),
+    (5,'O Código Da Vinci','Thriller','James Brown','Editora 2',5),
+    (6,'Harry Potter e a Pedra Filosofal','Fantasia','J.K. Rowling','Editora 3',6),
+    (7,'O Hobbit','Fantasia','Tolkien','Editora 3',7),
+    (8,'Declinio de um Homem','Ficção','Osamu Dazai','Editora 3',6),
+    (9,'Noites Brancas','Informática','Fyodor Dostoevsky','Editora 2',5),
+    (10,'A metamorfose','Ficção','Franz Kafka','Editora 1',4),
+    (11,'De bom a excelente','Negócios','Jim Collins','Editora 2',3),
+    (12,'Dom Casmurro','Ficção','Machado de Assis','Editora 3',2);";    
 
 $inserirLivro = mysqli_query($conn, $query);
 if (!$inserirLivro)
@@ -158,3 +164,31 @@ $query = "INSERT INTO Emprestimo (n_leitor, cod_livro, data_inicio, data_fim) VA
 $inserirEmprestimo = mysqli_query($conn, $query);
 if (!$inserirEmprestimo)
     die  ("Erro ao inserir dados na tabela Emprestimo");
+
+$query = "SELECT * FROM Leitor;";
+$selectLeitor = mysqli_query($conn, $query);
+if (!$selectLeitor)
+    die  ("Erro ao selecionar dados na tabela Leitor");
+if($selectLeitor->num_rows > 0){
+    while( $registro = $selectLeitor->fetch_assoc()){
+        echo "<br>" . "n_leitor: " . $registro["n_leitor"]. " - Nome: " . $registro["nome"]. " - Morada: " . $registro["morada"]. " - Contacto: " . $registro["contacto"]. "<br>";
+    }
+} else {
+    echo "0 resultados";
+}
+
+$query = "SELECT * FROM Livro;";
+$selectLivro = mysqli_query($conn, $query);
+if (!$selectLivro)
+    die  ("Erro ao selecionar dados na tabela Livro");
+if($selectLivro->num_rows > 0){
+    while( $registro = $selectLivro->fetch_assoc()){
+        echo "<br>" . "cod_livro: " . $registro["cod_livro"]. " - Nome: " . $registro["nome"]. " - Autor: " . $registro["autor"]. " - Editora: " . $registro["editora"]. " - Número de Leitor: " . $registro["n_leitor"]. "<br>";
+    }
+} else {
+    echo "0 resultados";
+}
+
+$query = "SELECT titulo,autor FROM Livro Where genero = 'informática';";
+
+?>
