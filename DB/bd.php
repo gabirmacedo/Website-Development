@@ -63,23 +63,32 @@ $criarCartao = mysqli_query($conn, $query);
 if (!$criarCartao)
     die  ("Erro ao criar tabela Cartao");
 
-$query = "ALTER TABLE Livro ADD genero VARCHAR(100);";
-$alterLivro = mysqli_query($conn, $query);
-if (!$alterLivro)
-    die  ("Erro ao alterar tabela Livro");
-
 $query = "CREATE TABLE IF NOT EXISTS Livro (
     cod_livro INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(200),
-    genero VARCHAR(100),
     autor VARCHAR(200),
     editora VARCHAR(150),
     n_leitor INT,
     FOREIGN KEY (n_leitor) REFERENCES Leitor(n_leitor));";
-
 $criarLivro = mysqli_query($conn, $query);
 if (!$criarLivro)
     die  ("Erro ao criar tabela Livro");
+
+$checkcolumn = mysqli_query($conn, "SHOW COLUMNS FROM Livro LIKE 'datapublicacao'");
+if (mysqli_num_rows($checkcolumn) == 0) {
+    $query = "ALTER TABLE Livro ADD COLUMN datapublicacao DATE;";
+    $alterLivro = mysqli_query($conn, $query);
+    if (!$alterLivro)
+        die  ("Erro ao alterar tabela Livro");
+}
+
+$checkcolumn = mysqli_query($conn, "SHOW COLUMNS FROM Livro LIKE 'genero'");
+if (mysqli_num_rows($checkcolumn) == 0) {
+    $query = "ALTER TABLE Livro ADD COLUMN genero VARCHAR(100);";
+    $alterLivro = mysqli_query($conn, $query);
+    if (!$alterLivro)
+        die  ("Erro ao alterar tabela Livro");
+}
 
 $query = "CREATE TABLE IF NOT EXISTS Emprestimo (
     n_emprestimo INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -126,19 +135,19 @@ $inserirCartao = mysqli_query($conn, $query);
 if (!$inserirCartao)
     die  ("Erro ao inserir dados na tabela Cartao");
 
-$query = "INSERT INTO Livro (cod_livro, nome, genero, autor, editora, n_leitor) VALUES 
-    (1,'O Senhor dos Anéis','Fantasia','Goblin','editora 1',1),
-    (2,'Senhora linda','Romance','George macedo','editora 2',2),
-    (3,'O Pequeno Príncipe','Infantil','Alice boavista','Editora 1',3),
-    (4,'A Menina que Roubava Livros','Ficção','Markus Zusak','Editora 2',4),
-    (5,'O Código Da Vinci','Thriller','James Brown','Editora 2',5),
-    (6,'Harry Potter e a Pedra Filosofal','Fantasia','J.K. Rowling','Editora 3',6),
-    (7,'O Hobbit','Fantasia','Tolkien','Editora 3',7),
-    (8,'Declinio de um Homem','Ficção','Osamu Dazai','Editora 3',6),
-    (9,'Noites Brancas','Informática','Fyodor Dostoevsky','Editora 2',5),
-    (10,'A metamorfose','Ficção','Franz Kafka','Editora 1',4),
-    (11,'De bom a excelente','Negócios','Jim Collins','Editora 2',3),
-    (12,'Dom Casmurro','Ficção','Machado de Assis','Editora 3',2);";    
+$query = "INSERT INTO Livro (cod_livro, nome, genero, autor, editora, n_leitor, datapublicacao) VALUES 
+    (1,'O Senhor dos Anéis','Fantasia','Goblin','editora 1',1,'2020-01-01'),
+    (2,'Senhora linda','Romance','George macedo','editora 2',2,'2020-02-01'),
+    (3,'O Pequeno Príncipe','Infantil','Alice boavista','Editora 1',3,'2015-03-01'),
+    (4,'A Menina que Roubava Livros','Ficção','Markus Zusak','Editora 2',4,'2020-04-01'),
+    (5,'O Código Da Vinci','Thriller','James Brown','Editora 2',5,'2013-05-01'),
+    (6,'Harry Potter e a Pedra Filosofal','Fantasia','J.K. Rowling','Editora 3',6,'2020-06-01'),
+    (7,'O Hobbit','Fantasia','Tolkien','Editora 3',7,'2011-07-01'),
+    (8,'Declinio de um Homem','Ficção','Osamu Dazai','Editora 3',6,'2006-08-01'),
+    (9,'Noites Brancas','Informática','Fyodor Dostoevsky','Editora 2',5,'2020-09-01'),
+    (10,'A metamorfose','Ficção','Franz Kafka','Editora 1',4,'2003-10-01'),
+    (11,'De bom a excelente','Negócios','Jim Collins','Editora 2',3,'1989-11-01'),
+    (12,'Dom Casmurro','Ficção','Machado de Assis','Editora 3',2,'2020-12-01');";    
 
 $inserirLivro = mysqli_query($conn, $query);
 if (!$inserirLivro)
@@ -165,17 +174,21 @@ $inserirEmprestimo = mysqli_query($conn, $query);
 if (!$inserirEmprestimo)
     die  ("Erro ao inserir dados na tabela Emprestimo");
 
+echo "<br>";
+echo "<h1>Listagen de Leitores</h1>";
+echo "<br>";
+
 $query = "SELECT * FROM Leitor;";
 $selectLeitor = mysqli_query($conn, $query);
 if (!$selectLeitor)
     die  ("Erro ao selecionar dados na tabela Leitor");
 if($selectLeitor->num_rows > 0){
     while( $registro = $selectLeitor->fetch_assoc()){
-        echo "<br>" . "n_leitor: " . $registro["n_leitor"]. " - Nome: " . $registro["nome"]. " - Morada: " . $registro["morada"]. " - Contacto: " . $registro["contacto"]. "<br>";
+        echo "ID: " . $registro["n_leitor"]. " - Nome: " . $registro["nome"]. " - Morada: " . $registro["morada"]. " - Contacto: " . $registro["contacto"]. "<br>";
     }
-} else {
-    echo "0 resultados";
-}
+} 
+echo "<h1>Listagem de Livros</h1>";
+echo "<br>";
 
 $query = "SELECT * FROM Livro;";
 $selectLivro = mysqli_query($conn, $query);
@@ -183,12 +196,108 @@ if (!$selectLivro)
     die  ("Erro ao selecionar dados na tabela Livro");
 if($selectLivro->num_rows > 0){
     while( $registro = $selectLivro->fetch_assoc()){
-        echo "<br>" . "cod_livro: " . $registro["cod_livro"]. " - Nome: " . $registro["nome"]. " - Autor: " . $registro["autor"]. " - Editora: " . $registro["editora"]. " - Número de Leitor: " . $registro["n_leitor"]. "<br>";
+        echo "ID: " . $registro["cod_livro"]. " - Nome: " . $registro["nome"]. " - Autor: " . $registro["autor"]. " - Editora: " . $registro["editora"]. " - n_leitor: " . $registro["n_leitor"]. "<br>"; 
     }
-} else {
-    echo "0 resultados";
+} 
+echo "<h1>Listagem de Livros por Género</h1>";
+echo "<br>";
+
+$query = "SELECT nome,autor FROM Livro Where genero = 'informática';";
+$selectLivroGenero = mysqli_query($conn, $query);
+if (!$selectLivroGenero)
+    die  ("Erro ao selecionar dados na tabela Livro");
+if($selectLivroGenero->num_rows > 0){
+    while( $registro = $selectLivroGenero->fetch_assoc()){
+        echo "Titulo: " . $registro["nome"]. " - Autor: " . $registro["autor"]. "<br>"; 
+    }
+} 
+echo "<h1>Listagem de Livros Por Ordem Alfabética</h1>";
+echo "<br>";
+
+$query = "SELECT nome FROM Livro ORDER BY nome;";
+$selectLivroOrdenado = mysqli_query($conn, $query);
+if (!$selectLivroOrdenado)
+    die  ("Erro ao selecionar dados na tabela Livro");
+if($selectLivroOrdenado->num_rows > 0){
+    while( $registro = $selectLivroOrdenado->fetch_assoc()){
+        echo "Titulo: " . $registro["nome"]. "<br>"; 
+    }
+} 
+echo "<h1>Listagem de Livros Publicados depois de 2015</h1>";
+echo "<br>";
+
+$query = "SELECT nome, autor FROM Livro WHERE datapublicacao BETWEEN '2015-01-01' AND '2028-01-01';";
+$selectLivroOrdenadoData = mysqli_query($conn, $query);
+if (!$selectLivroOrdenadoData)
+    die  ("Erro ao selecionar dados na tabela Livro");
+if($selectLivroOrdenadoData->num_rows > 0){
+    while( $registro = $selectLivroOrdenadoData->fetch_assoc()){
+        echo "Titulo: " . $registro["nome"]. " - Autor: " . $registro["autor"]. "<br>"; 
+    }
+} 
+echo "<h1>Pesquisa de Leitores pela letra 'A'</h1>";
+echo "<br>";
+
+$query = "SELECT * FROM Leitor WHERE nome LIKE 'A%';";
+$selectLeitorA = mysqli_query($conn, $query);
+if (!$selectLeitorA)
+    die  ("Erro ao selecionar dados na tabela Leitor");
+if($selectLeitorA->num_rows > 0){
+    while( $registro = $selectLeitorA->fetch_assoc()){
+        echo "ID: " . $registro["n_leitor"]. " - Nome: " . $registro["nome"]. " - Morada: " . $registro["morada"]. " - Contacto: " . $registro["contacto"]. "<br>"; 
+    }
+}
+echo "<h1>Consulta de Cartão</h1>";
+echo "<br>";
+
+$query = "SELECT nome,Cartao.n_leitor FROM Leitor, Cartao WHERE Leitor.n_leitor = Cartao.n_leitor;";
+$selectLeitorCartao = mysqli_query($conn, $query);
+if (!$selectLeitorCartao)
+    die  ("Erro ao selecionar dados na tabela Leitor e Cartao");
+if($selectLeitorCartao->num_rows > 0){
+    while( $registro = $selectLeitorCartao->fetch_assoc()){
+        echo "Nome: " . $registro["nome"]. " - Número do Cartão: " . $registro["n_leitor"]. "<br>"; 
+    }
+}
+echo "<h1>Consulta de Emprestimos</h1>";
+echo "<br>";
+
+$query = "SELECT Leitor.nome AS nome_leitor,Livro.nome AS nome_livro, Emprestimo.data_inicio FROM Emprestimo JOIN Leitor ON Emprestimo.n_leitor = Leitor.n_leitor JOIN Livro ON Emprestimo.cod_livro = Livro.cod_livro;";
+$selectLeitorLivroEmprestimo = mysqli_query($conn, $query);
+if (!$selectLeitorLivroEmprestimo)
+    die  ("Erro ao selecionar dados na tabela Leitor, Livro e Emprestimo");
+if($selectLeitorLivroEmprestimo->num_rows > 0){
+    while( $registro = $selectLeitorLivroEmprestimo->fetch_assoc()){
+        echo "Nome do Leitor: " . $registro["nome_leitor"]. " - Nome do Livro: " . $registro["nome_livro"]. " - Data de Início: " . $registro["data_inicio"]. "<br>"; 
+    }
+}
+echo "<h1>Livros por Devolver</h1>";
+echo "<br>";
+
+$query = "SELECT Leitor.nome AS nome_leitor, Livro.nome AS nome_livro, Emprestimo.data_FIM FROM Emprestimo JOIN Leitor ON Emprestimo.n_leitor = Leitor.n_leitor JOIN Livro ON Emprestimo.cod_livro = Livro.cod_livro WHERE Emprestimo.data_fim IS NULL;";
+$selectLeitorLivroEmprestimoFim = mysqli_query($conn, $query);
+if (!$selectLeitorLivroEmprestimoFim)
+    die  ("Erro ao selecionar dados na tabela Leitor, Livro e Emprestimo");
+if($selectLeitorLivroEmprestimoFim->num_rows > 0){
+    while( $registro = $selectLeitorLivroEmprestimoFim->fetch_assoc()){
+        echo "Nome do Leitor: " . $registro["nome_leitor"]. " - Nome do Livro: " . $registro["nome_livro"]. " - Data de Devolução: " . $registro["data_fim"]. "<br>"; 
+    }
+}
+else {
+    echo "Não tem livros por devolver";
 }
 
-$query = "SELECT titulo,autor FROM Livro Where genero = 'informática';";
+echo "<h1>Listagem de</h1>";
+echo "<br>";
+
+$query = "SELECT Leitor.nome AS nome_Leitor, COUNT(Emprestimo.n_emprestimo) AS total_emprestimos FROM Emprestimo LEFT JOIN Leitor ON Emprestimo.n_leitor = Leitor.n_leitor GROUP BY Leitor.nome, Leitor.n_leitor;";
+$selectLeitorEmprestimos = mysqli_query($conn, $query);
+if (!$selectLeitorEmprestimos)
+    die  ("Erro ao selecionar dados na tabela Leitor e Emprestimo");
+if($selectLeitorEmprestimos->num_rows > 0){
+    while( $registro = $selectLeitorEmprestimos->fetch_assoc()){
+        echo "Nome do Leitor: " . $registro["nome_Leitor"]. " - Total de Empréstimos: " . $registro["total_emprestimos"]. "<br>"; 
+    }
+}
 
 ?>
